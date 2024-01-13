@@ -15,7 +15,7 @@ let corsOptions = {
 const port= process.env.NODE_DOCKER_PORT || 8080;
 
 const filePath = 'data.json'
-const remoteFileUrl = 'https://raw.githubusercontent.com/klishin16/dictionary-map/main/server/src/data.json'
+const remoteFileUrl = 'https://raw.githubusercontent.com/klishin16/dictionary-map/main/server/data.json'
 
 let data: JSON | null = null;
 
