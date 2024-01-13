@@ -1,23 +1,28 @@
 import express, { Application, Response } from 'express'
 import * as fs from 'fs'
-import * as path from 'path'
 import * as https from 'https'
 import * as util from 'util'
+import cors from 'cors'
 
 const app: Application = express()
 
-const port: number = 3000
+let corsOptions = { 
+    origin: "*",
+ } 
+   
+ app.use(cors(corsOptions)) 
 
-const file = 'data.json'
-const filePath = path.join(__dirname, file);
-const remoteFileUrl = ''
+const port= process.env.NODE_DOCKER_PORT || 8080;
+
+const filePath = 'data.json'
+const remoteFileUrl = 'https://raw.githubusercontent.com/klishin16/dictionary-map/main/server/src/data.json'
 
 let data: JSON | null = null;
 
 const readFile = util.promisify(fs.readFile);
 
 const downloadRemoteDictionary = () => new Promise((resolve, reject) => {
-    const stream = fs.createWriteStream(file);
+    const stream = fs.createWriteStream(filePath);
 
     https.get(remoteFileUrl, function (res) {
         res.pipe(stream);
@@ -26,7 +31,7 @@ const downloadRemoteDictionary = () => new Promise((resolve, reject) => {
         });
     })
         .on('error', function (err) {
-            fs.unlink(file, () => {
+            fs.unlink(filePath, () => {
                 reject(err)
             });
         });
@@ -37,7 +42,7 @@ const loadLocalDictionary = async () => {
     data = JSON.parse(buffer.toString());
 }
 
-app.get('/mind-map', (_, res: Response) => {
+app.get('/dictionary-map', (_, res: Response) => {
     if (data) {
         res.json(data);
     } else {
@@ -46,7 +51,11 @@ app.get('/mind-map', (_, res: Response) => {
 })
 
 downloadRemoteDictionary()
-    .then(() => loadLocalDictionary())
+    .then(() => {
+        console.log('Downloaded remote dictionary');
+        
+        return loadLocalDictionary()
+    })
     .then(() => {
         console.log('Loaded local dictionary');
 
@@ -56,5 +65,4 @@ downloadRemoteDictionary()
     })
     .catch(e => {
         console.log(`Error: ${e}`);
-        
     })
