@@ -17,8 +17,9 @@ const Layout = () => {
 
     if (isLoading) {
         return (
-            <div className='h-full flex justify-center items-center'>
+            <div className='h-full flex flex-col justify-center items-center'>
                 <Loader />
+                <p className="mt-2 text-xs text-neutral-400">Первая загрузка может занимать до 1 мин (особенности free хостинга бекенда)</p>
             </div>
         )
     }
